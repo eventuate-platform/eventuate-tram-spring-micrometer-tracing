@@ -70,4 +70,8 @@ gradle.projectsEvaluated {
         archives project.aggregateJavaDocsJar
     }
 
+    // Ensure javadocJar task (from Eventuate plugin) depends on aggregateJavaDocs
+    tasks.named('javadocJar') {
+        dependsOn aggregateJavaDocs
+    }
 }

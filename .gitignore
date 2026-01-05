@@ -11,3 +11,4 @@ bin
 .DS_Store
 .claude/sessions
 .claude/issues
+docs/features/use-micrometer-tracing/use-micrometer-tracing-sessionID.txt
