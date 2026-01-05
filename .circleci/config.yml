@@ -1,0 +1,11 @@
+version: 2.1
+orbs:
+  eventuate-gradle-build-and-test: "eventuate_io/eventuate-gradle-build-and-test@0.2.9"
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - eventuate-gradle-build-and-test/build-and-test:
+          script: ./.circleci/build-and-deploy.sh
+          context:
+            - publish

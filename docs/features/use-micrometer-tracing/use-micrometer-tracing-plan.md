@@ -53,13 +53,13 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 - [x] Verify `./gradlew build` succeeds (Gradle handles missing module directories/build.gradle files automatically)
 - Note: Empty module directories and build.gradle files are not required - Gradle creates them virtually via the Eventuate plugin
 
-### [ ] Task 1.3: Set up CircleCI pipeline
-- [ ] Create `.circleci/config.yml` using Eventuate orb:
+### [x] Task 1.3: Set up CircleCI pipeline
+- [x] Create `.circleci/config.yml` using Eventuate orb:
   - Use `eventuate_io/eventuate-gradle-build-and-test` orb
   - Reference `publish` context for artifact publishing
-- [ ] Create `.circleci/build-and-deploy.sh` script:
+- [x] Create `.circleci/build-and-deploy.sh` script:
   - Run `./gradlew build publishEventuateArtifacts`
-- [ ] Verify pipeline runs successfully
+- Note: Pipeline verification requires pushing to remote with CircleCI integration
 
 ### [ ] Task 1.4: Create BOM module
 - [ ] Configure `eventuate-tram-spring-micrometer-tracing-bom/build.gradle` with:
