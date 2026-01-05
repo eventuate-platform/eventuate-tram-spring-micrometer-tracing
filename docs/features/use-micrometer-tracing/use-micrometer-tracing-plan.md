@@ -1,0 +1,408 @@
+# Eventuate Tram Spring Micrometer Tracing - Steel Thread Implementation Plan
+
+## Instructions for Coding Agent
+
+Before implementing any task in this plan:
+
+1. **ALWAYS** use the `idea-to-code:plan-tracking` skill to track task completion in this plan file
+2. **ALWAYS** write code using TDD:
+   - Use the `idea-to-code:tdd` skill when implementing code
+   - **NEVER** write production code (`src/main/java/**/*.java`) without first writing a failing test (`src/test/java/**/*.java`)
+   - Before using the Write tool on any `.java` file in `src/main/`, ask: "Do I have a failing test for this?" If not, write the test first
+   - When building something that requires scripting, never run scripts or ad-hoc commands that modify state directly. Always update the test script first, then run the test script
+   - When task direction changes mid-implementation, return to TDD PLANNING state and write a test first
+3. **ALWAYS** after completing a task, when the tests pass and the task has been marked as complete, commit the changes
+
+## Reference Project
+
+This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth` . Refer to it for:
+- Gradle build patterns
+- Package naming conventions
+- Extension point interfaces from Eventuate Tram
+- Test patterns and infrastructure
+
+## Technology Stack
+
+- Java 17+
+- Spring Boot 3.4.7
+- Micrometer Tracing (Observation API)
+- Eventuate Tram 0.37.0.BUILD-SNAPSHOT
+- Gradle (Kotlin DSL or Groovy, matching Eventuate conventions)
+- TestContainers (Zipkin, Jaeger)
+- JUnit 5
+
+---
+
+## Steel Thread 1 – Project Setup and Build Infrastructure
+
+**Goal:** Establish the multi-module Gradle project with proper build configuration, CI pipeline, and verify it compiles.
+
+### [x] Task 1.1: Create root Gradle build configuration
+- [x] Run `git init` to initialize repository
+- [x] Create `.gitignore` for Gradle/Java projects
+- [x] Create `settings.gradle` with all 9 module names plus BOM module
+- [x] Create root `build.gradle` with:
+  - Eventuate Gradle plugins for versioning and publishing
+  - Group ID: `io.eventuate.tram.springmicrometertracing`
+  - Java 17 toolchain
+  - Spring Boot 3.4.7 BOM
+  - Micrometer Tracing BOM
+  - Eventuate Tram 0.37.0.BUILD-SNAPSHOT BOM
+
+### [ ] Task 1.2: Create module directory structure
+- [ ] Create empty `build.gradle` for each module:
+  - `eventuate-tram-spring-micrometer-tracing-common`
+  - `eventuate-tram-spring-micrometer-tracing-producer`
+  - `eventuate-tram-spring-micrometer-tracing-consumer`
+  - `eventuate-tram-spring-micrometer-tracing-reactive-common`
+  - `eventuate-tram-spring-micrometer-tracing-reactive-producer`
+  - `eventuate-tram-spring-micrometer-tracing-reactive-consumer`
+  - `eventuate-tram-spring-micrometer-tracing-starter`
+  - `eventuate-tram-spring-micrometer-tracing-tests`
+  - `eventuate-tram-spring-micrometer-tracing-reactive-tests`
+  - `eventuate-tram-spring-micrometer-tracing-bom`
+- [ ] Verify `./gradlew build` succeeds (empty project)
+
+### [ ] Task 1.3: Set up CircleCI pipeline
+- [ ] Create `.circleci/config.yml` using Eventuate orb:
+  - Use `eventuate_io/eventuate-gradle-build-and-test` orb
+  - Reference `publish` context for artifact publishing
+- [ ] Create `.circleci/build-and-deploy.sh` script:
+  - Run `./gradlew build publishEventuateArtifacts`
+- [ ] Verify pipeline runs successfully
+
+### [ ] Task 1.4: Create BOM module
+- [ ] Configure `eventuate-tram-spring-micrometer-tracing-bom/build.gradle` with:
+  - `java-platform` plugin
+  - Constraints for all library modules
+- [ ] Verify BOM publishes correctly to local Maven
+
+---
+
+## Steel Thread 2 – Common Module with Observation Conventions
+
+**Goal:** Implement the common module with Micrometer Observation conventions and utilities that will be shared by producer and consumer modules.
+
+### [ ] Task 2.1: Implement TramObservationConvention for messaging observations
+- [ ] Define `TramProducerObservationContext` extending `Observation.Context` with:
+  - `destination` (low cardinality)
+  - `messageId` (high cardinality)
+  - `messageHeaders` (high cardinality)
+- [ ] Define `TramConsumerObservationContext` extending `Observation.Context` with:
+  - `destination` (low cardinality)
+  - `subscriberId` (low cardinality)
+  - `messageId` (high cardinality)
+  - `messageHeaders` (high cardinality)
+- [ ] Implement `TramObservationDocumentation` enum documenting observation names and keys
+
+### [ ] Task 2.2: Implement MessageHeaderAccessor abstraction
+- [ ] Create `MessageHeaderAccessor` interface with `put()`, `get()`, `remove()` methods
+- [ ] Create `MessageHeaderMapAccessor` implementation for `Map<String, String>` headers
+- [ ] Create `MessageHeaderPropagatorSetter` implementing Micrometer's propagation setter
+- [ ] Create `MessageHeaderPropagatorGetter` implementing Micrometer's propagation getter
+
+### [ ] Task 2.3: Implement ObservationHelper utility class
+- [ ] Create `ObservationHelper` that:
+  - Holds `ObservationRegistry` reference
+  - Provides `startProducerObservation()` method
+  - Provides `startConsumerObservation()` method
+  - Handles trace context injection into message headers
+  - Handles trace context extraction from message headers
+- [ ] Add null-safety for when `ObservationRegistry` is `NOOP`
+
+### [ ] Task 2.4: Create common module auto-configuration
+- [ ] Create `TramMicrometerTracingCommonAutoConfiguration` with:
+  - `@ConditionalOnClass(ObservationRegistry.class)`
+  - Bean for `ObservationHelper`
+- [ ] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- [ ] Configure module `build.gradle` with dependencies:
+  - `micrometer-tracing` (compileOnly)
+  - `micrometer-observation` (compileOnly)
+  - `eventuate-tram-messaging` (compileOnly)
+
+---
+
+## Steel Thread 3 – Synchronous Producer Tracing (Brave Bridge)
+
+**Goal:** Implement producer tracing that creates observations when messages are sent, verified with Brave bridge and Zipkin.
+
+### [ ] Task 3.1: Implement ObservationMessageProducerInterceptor
+- [ ] Create `ObservationMessageProducerInterceptor` implementing `MessageInterceptor`:
+  - `preSend()`: Start observation with destination, inject trace context into headers
+  - `postSend()`: Add messageId to context, stop observation (handle errors)
+- [ ] Use `ObservationHelper` for observation lifecycle
+- [ ] Ensure span name follows convention: `eventuate.tram.producer`
+
+### [ ] Task 3.2: Create producer module auto-configuration
+- [ ] Create `TramMicrometerTracingProducerAutoConfiguration` with:
+  - `@ConditionalOnClass(MessageProducerImplementation.class)`
+  - `@ConditionalOnBean(ObservationRegistry.class)`
+  - Bean for `ObservationMessageProducerInterceptor`
+- [ ] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- [ ] Configure module `build.gradle` with dependencies on common module
+
+### [ ] Task 3.3: Create integration test infrastructure for sync tests
+- [ ] Configure `eventuate-tram-spring-micrometer-tracing-tests/build.gradle` with:
+  - TestContainers dependency
+  - `micrometer-tracing-bridge-brave`
+  - `zipkin-reporter-brave`
+  - `eventuate-tram-spring-in-memory`
+  - JUnit 5
+- [ ] Create `ZipkinContainer` test utility using TestContainers
+- [ ] Create `ZipkinSpanVerifier` utility to query and assert spans from Zipkin API
+
+### [ ] Task 3.4: Producer observation creates span visible in Zipkin
+- [ ] Create `TestController` with `POST /send/{id}` endpoint that sends a message
+- [ ] Create `TestMessage` DTO
+- [ ] Create `ProducerTracingIntegrationTest`:
+  - Start Zipkin container
+  - Send message via TestController
+  - Query Zipkin API for traces
+  - Assert producer span exists with correct name and tags
+- [ ] Verify test passes with Brave bridge
+
+---
+
+## Steel Thread 4 – Synchronous Consumer Tracing (Brave Bridge)
+
+**Goal:** Implement consumer tracing that extracts trace context and creates child spans, completing the producer-consumer trace flow.
+
+### [ ] Task 4.1: Implement ObservationMessageConsumerDecorator
+- [ ] Create `ObservationMessageConsumerDecorator` implementing `MessageHandlerDecorator`:
+  - Extract trace context from message headers
+  - Start observation with destination, subscriberId
+  - Wrap handler chain execution
+  - Stop observation on completion (record errors)
+- [ ] Ensure span name follows convention: `eventuate.tram.consumer`
+
+### [ ] Task 4.2: Create consumer module auto-configuration
+- [ ] Create `TramMicrometerTracingConsumerAutoConfiguration` with:
+  - `@ConditionalOnClass` for consumer classes
+  - `@ConditionalOnBean(ObservationRegistry.class)`
+  - Bean for `ObservationMessageConsumerDecorator`
+- [ ] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- [ ] Configure module `build.gradle` with dependencies
+
+### [ ] Task 4.3: Consumer observation creates child span with trace propagation
+- [ ] Create `TestConsumer` that subscribes to test channel and records received messages
+- [ ] Extend `ProducerTracingIntegrationTest` to verify:
+  - Consumer span exists in Zipkin
+  - Consumer span is child of producer span (same traceId, parentId matches producer spanId)
+  - Consumer span has correct tags (destination, subscriberId)
+
+---
+
+## Steel Thread 5 – Duplicate Message Detection Tracing
+
+**Goal:** Add tracing for the SQL-based duplicate message detector as a child span of the consumer observation.
+
+### [ ] Task 5.1: Implement SqlTableBasedDuplicateMessageDetectorObservationAspect
+- [ ] Create `TramDeduplicationObservationContext` extending `Observation.Context`:
+  - `consumerId` (low cardinality)
+  - `messageId` (high cardinality)
+- [ ] Create AspectJ aspect `SqlTableBasedDuplicateMessageDetectorObservationAspect`:
+  - `@Around` advice on `SqlTableBasedDuplicateMessageDetector.doWithMessage()`
+  - Create child observation with name `eventuate.tram.deduplication`
+  - Execute method within observation scope
+
+### [ ] Task 5.2: Create deduplication aspect auto-configuration
+- [ ] Create `TramMicrometerTracingDeduplicationAutoConfiguration` with:
+  - `@ConditionalOnClass(SqlTableBasedDuplicateMessageDetector.class)`
+  - Bean for the aspect
+- [ ] Update `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+
+### [ ] Task 5.3: Deduplication observation appears as child of consumer span
+- [ ] Add deduplication test to integration tests:
+  - Configure SQL-based duplicate detector (requires database)
+  - Send message and verify three spans in trace: producer → consumer → deduplication
+  - Verify deduplication span has correct tags
+
+---
+
+## Steel Thread 6 – OpenTelemetry Bridge Support
+
+**Goal:** Verify the implementation works with OpenTelemetry bridge and Jaeger backend.
+
+### [ ] Task 6.1: Create OpenTelemetry integration test configuration
+- [ ] Add `JaegerContainer` test utility using TestContainers
+- [ ] Add `JaegerSpanVerifier` utility to query Jaeger API
+- [ ] Create separate test source set or profile for OTel tests
+
+### [ ] Task 6.2: Producer and consumer traces propagate with W3C headers
+- [ ] Create `OpenTelemetryTracingIntegrationTest`:
+  - Use `micrometer-tracing-bridge-otel` instead of Brave
+  - Use Jaeger container instead of Zipkin
+  - Send message and verify trace in Jaeger
+  - Verify W3C Trace Context headers (`traceparent`) in message
+- [ ] Ensure same production code works with both bridges
+
+---
+
+## Steel Thread 7 – Reactive Producer Tracing
+
+**Goal:** Implement tracing for reactive message producers using Mono operators.
+
+### [ ] Task 7.1: Implement reactive observation base classes
+- [ ] Create `AbstractObservationMonoOperator<T>` extending `MonoOperator`:
+  - Manages observation lifecycle across reactive boundaries
+  - Uses `ContextSnapshot` for trace context propagation
+- [ ] Create `ObservationTracingSubscriber<T>` implementing `CoreSubscriber`:
+  - Handles observation start/stop on subscription signals
+  - Propagates trace context in Reactor Context
+
+### [ ] Task 7.2: Implement ReactiveMessageProducerObservationAspect
+- [ ] Create AspectJ aspect `ReactiveMessageProducerObservationAspect`:
+  - `@Around` advice on `ReactiveMessageProducerImplementation.send()`
+  - Wrap returned `Mono<Message>` with `ProducerObservationMonoOperator`
+- [ ] Create `ProducerObservationMonoOperator` extending base operator:
+  - Initialize observation with destination and message headers
+  - Inject trace context into message headers
+
+### [ ] Task 7.3: Create reactive producer module auto-configuration
+- [ ] Create `TramMicrometerTracingReactiveProducerAutoConfiguration` with:
+  - `@ConditionalOnClass(ReactiveMessageProducerImplementation.class)`
+  - Bean for the aspect
+- [ ] Configure module `build.gradle` with dependencies on reactive-common
+
+### [ ] Task 7.4: Reactive producer observation creates span
+- [ ] Configure `eventuate-tram-spring-micrometer-tracing-reactive-tests/build.gradle`
+- [ ] Create `ReactiveTestController` with endpoint that uses reactive producer
+- [ ] Create `ReactiveProducerTracingIntegrationTest`:
+  - Send message via reactive producer
+  - Verify span in Zipkin with correct observation name
+
+---
+
+## Steel Thread 8 – Reactive Consumer Tracing
+
+**Goal:** Implement tracing for reactive message consumers, completing the reactive trace flow.
+
+### [ ] Task 8.1: Implement ReactiveObservationMessageConsumerDecorator
+- [ ] Create `ReactiveObservationMessageConsumerDecorator` implementing `ReactiveMessageHandlerDecorator`:
+  - Wrap handler `Mono` with `ConsumerObservationMonoOperator`
+- [ ] Create `ConsumerObservationMonoOperator` extending base operator:
+  - Extract trace context from message headers
+  - Create child observation with destination, subscriberId
+
+### [ ] Task 8.2: Create reactive consumer module auto-configuration
+- [ ] Create `TramMicrometerTracingReactiveConsumerAutoConfiguration` with:
+  - `@ConditionalOnClass` for reactive consumer classes
+  - Bean for the decorator
+- [ ] Configure module `build.gradle` with dependencies
+
+### [ ] Task 8.3: Reactive consumer observation creates child span with trace propagation
+- [ ] Create `ReactiveTestConsumer` that subscribes to test channel
+- [ ] Extend reactive integration test to verify:
+  - Consumer span is child of producer span
+  - Trace propagates correctly through reactive chain
+
+---
+
+## Steel Thread 9 – Starter Module and Error Handling
+
+**Goal:** Create the convenience starter module and verify error handling behavior.
+
+### [ ] Task 9.1: Create starter module
+- [ ] Configure `eventuate-tram-spring-micrometer-tracing-starter/build.gradle`:
+  - Depend on producer, consumer, reactive-producer, reactive-consumer modules
+  - No additional code needed (aggregation only)
+- [ ] Verify starter brings in all tracing modules transitively
+
+### [ ] Task 9.2: Consumer error is recorded in span
+- [ ] Add error handling test:
+  - Consumer throws exception during message handling
+  - Verify span has error flag and exception recorded
+  - Verify observation still completes (error doesn't break tracing)
+
+### [ ] Task 9.3: Tracing failure does not prevent message processing
+- [ ] Add fault isolation test:
+  - Configure faulty ObservationRegistry (throws exceptions)
+  - Verify message processing continues despite tracing errors
+  - Verify no exceptions propagate to application code
+
+---
+
+## Steel Thread 10 – OpenTelemetry Reactive Tests
+
+**Goal:** Verify reactive tracing works with OpenTelemetry bridge.
+
+### [ ] Task 10.1: Reactive traces propagate with OpenTelemetry bridge
+- [ ] Create `ReactiveOpenTelemetryTracingIntegrationTest`:
+  - Use OTel bridge with Jaeger
+  - Test reactive producer → consumer flow
+  - Verify W3C Trace Context propagation
+  - Verify spans in Jaeger
+
+---
+
+## Steel Thread 11 – Documentation and Finalization
+
+**Goal:** Create documentation and verify all acceptance criteria are met.
+
+### [ ] Task 11.1: Create README with quick start guide
+- [ ] Write README.md with:
+  - Project overview
+  - Quick start (Maven/Gradle dependency)
+  - Configuration options
+  - Example usage
+
+### [ ] Task 11.2: Create migration guide from Spring Cloud Sleuth
+- [ ] Document in README or separate MIGRATION.md:
+  - Dependency changes
+  - Header format differences (B3 vs W3C)
+  - Configuration property changes
+
+### [ ] Task 11.3: Verify all acceptance criteria
+- [ ] Run full test suite with both bridges
+- [ ] Verify all functional acceptance criteria (F1-F8) pass
+- [ ] Verify non-functional criteria (NF1-NF4) are addressed
+- [ ] Tag release candidate
+
+---
+
+## Dependency Graph
+
+```
+Steel Thread 1 (Project Setup)
+    ↓
+Steel Thread 2 (Common Module)
+    ↓
+Steel Thread 3 (Sync Producer) ─────────────────┐
+    ↓                                           │
+Steel Thread 4 (Sync Consumer)                  │
+    ↓                                           │
+Steel Thread 5 (Deduplication)                  │
+    ↓                                           │
+Steel Thread 6 (OTel Bridge) ←──────────────────┤
+                                                │
+Steel Thread 7 (Reactive Producer) ←────────────┘
+    ↓                     (parallel after ST2)
+Steel Thread 8 (Reactive Consumer)
+    ↓
+Steel Thread 9 (Starter + Error Handling)
+    ↓
+Steel Thread 10 (Reactive OTel)
+    ↓
+Steel Thread 11 (Documentation)
+```
+
+---
+
+## Change History
+
+### 2026-01-05: Added git init step to Task 1.1
+
+- Added `git init` as the first sub-task in Task 1.1
+- Moved `.gitignore` creation to immediately after `git init`
+- Repository must be initialized before creating git-related configuration files
+
+### 2026-01-05: Updated CI to use CircleCI
+
+- Changed Task 1.3 from GitHub Actions to CircleCI
+- Uses Eventuate orb (`eventuate_io/eventuate-gradle-build-and-test`) to match reference project
+
+### 2026-01-05: Initial plan created
+
+- Created steel-thread implementation plan with 11 threads
+- Organized by causal dependencies and architectural priority
+- Followed TDD-first task structure with outcome-focused tasks

@@ -10,3 +10,4 @@ out
 bin
 .DS_Store
 .claude/sessions
+.claude/issues
