@@ -1,6 +1,5 @@
 dependencies {
-    implementation project(":eventuate-tram-spring-micrometer-tracing-producer")
-    implementation project(":eventuate-tram-spring-micrometer-tracing-consumer")
+    implementation project(":eventuate-tram-spring-micrometer-tracing-starter")
     testImplementation project(":eventuate-tram-spring-micrometer-tracing-tests-common")
 
     testImplementation "io.eventuate.tram.core:eventuate-tram-spring-in-memory"
