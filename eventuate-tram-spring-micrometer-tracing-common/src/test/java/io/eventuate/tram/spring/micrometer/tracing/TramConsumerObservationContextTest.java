@@ -5,33 +5,33 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TramConsumerObservationContextTest {
 
     @Test
     void shouldExtendObservationContext() {
         TramConsumerObservationContext context = new TramConsumerObservationContext("test-destination", "test-subscriber");
-        assertInstanceOf(Observation.Context.class, context);
+        assertThat(context).isInstanceOf(Observation.Context.class);
     }
 
     @Test
     void shouldStoreDestination() {
         TramConsumerObservationContext context = new TramConsumerObservationContext("order-events", "order-service");
-        assertEquals("order-events", context.getDestination());
+        assertThat(context.getDestination()).isEqualTo("order-events");
     }
 
     @Test
     void shouldStoreSubscriberId() {
         TramConsumerObservationContext context = new TramConsumerObservationContext("order-events", "order-service");
-        assertEquals("order-service", context.getSubscriberId());
+        assertThat(context.getSubscriberId()).isEqualTo("order-service");
     }
 
     @Test
     void shouldStoreMessageId() {
         TramConsumerObservationContext context = new TramConsumerObservationContext("test-destination", "test-subscriber");
         context.setMessageId("msg-456");
-        assertEquals("msg-456", context.getMessageId());
+        assertThat(context.getMessageId()).isEqualTo("msg-456");
     }
 
     @Test
@@ -39,6 +39,6 @@ class TramConsumerObservationContextTest {
         TramConsumerObservationContext context = new TramConsumerObservationContext("test-destination", "test-subscriber");
         Map<String, String> headers = Map.of("traceId", "abc123");
         context.setMessageHeaders(headers);
-        assertEquals(headers, context.getMessageHeaders());
+        assertThat(context.getMessageHeaders()).isEqualTo(headers);
     }
 }

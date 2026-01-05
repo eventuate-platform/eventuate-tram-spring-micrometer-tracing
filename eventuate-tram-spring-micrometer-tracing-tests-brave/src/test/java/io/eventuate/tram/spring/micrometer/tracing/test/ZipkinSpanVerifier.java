@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ZipkinSpanVerifier {
 
@@ -23,14 +23,14 @@ public class ZipkinSpanVerifier {
     public List<List<ZipkinSpan>> getTraces() {
         String url = zipkinBaseUrl + "api/v2/traces";
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         return ZipkinTraceDeserializer.deserializeTraces(response.getBody());
     }
 
     public List<List<ZipkinSpan>> getTracesByAnnotation(String annotationQuery) {
         String url = String.format("%sapi/v2/traces?annotationQuery=%s", zipkinBaseUrl, annotationQuery);
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         return ZipkinTraceDeserializer.deserializeTraces(response.getBody());
     }
 
@@ -54,13 +54,15 @@ public class ZipkinSpanVerifier {
     }
 
     public void assertChildOf(ZipkinSpan parent, ZipkinSpan child) {
-        assertTrue(child.isChildOf(parent),
-                String.format("Expected %s to be child of %s, but parentId was %s",
-                        child, parent.getId(), child.getParentId()));
+        assertThat(child.isChildOf(parent))
+                .as("Expected %s to be child of %s, but parentId was %s",
+                        child, parent.getId(), child.getParentId())
+                .isTrue();
     }
 
     public void assertSameTrace(ZipkinSpan span1, ZipkinSpan span2) {
-        assertEquals(span1.getTraceId(), span2.getTraceId(),
-                String.format("Expected spans to have same traceId: %s vs %s", span1, span2));
+        assertThat(span2.getTraceId())
+                .as("Expected spans to have same traceId: %s vs %s", span1, span2)
+                .isEqualTo(span1.getTraceId());
     }
 }

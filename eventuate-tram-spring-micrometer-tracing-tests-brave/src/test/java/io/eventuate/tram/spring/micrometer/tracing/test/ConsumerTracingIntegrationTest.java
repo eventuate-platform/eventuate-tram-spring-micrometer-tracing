@@ -30,7 +30,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = ConsumerTracingIntegrationTest.TestConfiguration.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -96,12 +96,12 @@ public class ConsumerTracingIntegrationTest {
         ResponseEntity<String> result = restTemplate.postForEntity(url,
                 new TestMessage("test content " + id), String.class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isNotNull();
 
         // Wait for message to be consumed
         Eventually.eventually(() -> {
-            assertFalse(testConsumer.getReceivedMessages().isEmpty(), "Should have received at least one message");
+            assertThat(testConsumer.getReceivedMessages()).as("Should have received at least one message").isNotEmpty();
         });
 
         // Verify spans in Zipkin
@@ -115,7 +115,7 @@ public class ConsumerTracingIntegrationTest {
         List<List<ZipkinSpan>> traces = verifier.getTraces();
         logger.debug("Found {} traces", traces.size());
 
-        assertFalse(traces.isEmpty(), "Expected at least one trace in Zipkin");
+        assertThat(traces).as("Expected at least one trace in Zipkin").isNotEmpty();
 
         List<ZipkinSpan> trace = traces.get(0);
         logger.debug("Trace has {} spans: {}", trace.size(), trace);
@@ -123,21 +123,22 @@ public class ConsumerTracingIntegrationTest {
         // Find producer span
         String producerSpanName = TramObservationDocumentation.PRODUCER.getName();
         ZipkinSpan producerSpan = verifier.findSpanByName(trace, producerSpanName);
-        assertNotNull(producerSpan, "Producer span should exist");
+        assertThat(producerSpan).as("Producer span should exist").isNotNull();
 
         // Find consumer span
         String consumerSpanName = TramObservationDocumentation.CONSUMER.getName();
         ZipkinSpan consumerSpan = verifier.findSpanByName(trace, consumerSpanName);
-        assertNotNull(consumerSpan, "Consumer span should exist");
+        assertThat(consumerSpan).as("Consumer span should exist").isNotNull();
 
         // Verify consumer span is child of producer span (same traceId)
-        assertEquals(producerSpan.getTraceId(), consumerSpan.getTraceId(),
-                "Consumer and producer should be in the same trace");
+        assertThat(consumerSpan.getTraceId())
+                .as("Consumer and producer should be in the same trace")
+                .isEqualTo(producerSpan.getTraceId());
 
         // Verify consumer span has correct tags
-        assertTrue(consumerSpan.hasTag("messaging.destination", TestController.TEST_CHANNEL),
-                "Consumer span should have destination tag");
-        assertTrue(consumerSpan.hasTag("messaging.subscriber.id", TestConsumer.SUBSCRIBER_ID),
-                "Consumer span should have subscriber.id tag");
+        assertThat(consumerSpan.hasTag("messaging.destination", TestController.TEST_CHANNEL))
+                .as("Consumer span should have destination tag").isTrue();
+        assertThat(consumerSpan.hasTag("messaging.subscriber.id", TestConsumer.SUBSCRIBER_ID))
+                .as("Consumer span should have subscriber.id tag").isTrue();
     }
 }

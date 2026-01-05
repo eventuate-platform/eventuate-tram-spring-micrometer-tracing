@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JaegerSpanVerifier {
 
@@ -30,7 +30,7 @@ public class JaegerSpanVerifier {
     public List<List<JaegerSpan>> getTraces() {
         String url = String.format("%s/api/traces?service=%s&limit=20", jaegerQueryUrl, serviceName);
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         return parseTraces(response.getBody());
     }
 
@@ -72,7 +72,8 @@ public class JaegerSpanVerifier {
     }
 
     public void assertSameTrace(JaegerSpan span1, JaegerSpan span2) {
-        assertEquals(span1.getTraceID(), span2.getTraceID(),
-                String.format("Expected spans to have same traceId: %s vs %s", span1, span2));
+        assertThat(span2.getTraceID())
+                .as("Expected spans to have same traceId: %s vs %s", span1, span2)
+                .isEqualTo(span1.getTraceID());
     }
 }

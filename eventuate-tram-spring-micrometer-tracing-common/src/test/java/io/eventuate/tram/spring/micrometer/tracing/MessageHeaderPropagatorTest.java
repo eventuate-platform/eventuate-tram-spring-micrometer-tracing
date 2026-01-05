@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MessageHeaderPropagatorTest {
 
     @Test
     void setterShouldImplementPropagatorSetter() {
-        assertTrue(Propagator.Setter.class.isAssignableFrom(MessageHeaderPropagatorSetter.class));
+        assertThat(Propagator.Setter.class.isAssignableFrom(MessageHeaderPropagatorSetter.class)).isTrue();
     }
 
     @Test
@@ -22,12 +22,12 @@ class MessageHeaderPropagatorTest {
 
         setter.set(headers, "X-B3-TraceId", "abc123");
 
-        assertEquals("abc123", headers.get("X-B3-TraceId"));
+        assertThat(headers.get("X-B3-TraceId")).isEqualTo("abc123");
     }
 
     @Test
     void getterShouldImplementPropagatorGetter() {
-        assertTrue(Propagator.Getter.class.isAssignableFrom(MessageHeaderPropagatorGetter.class));
+        assertThat(Propagator.Getter.class.isAssignableFrom(MessageHeaderPropagatorGetter.class)).isTrue();
     }
 
     @Test
@@ -36,7 +36,7 @@ class MessageHeaderPropagatorTest {
         headers.put("X-B3-TraceId", "abc123");
         MessageHeaderPropagatorGetter getter = new MessageHeaderPropagatorGetter();
 
-        assertEquals("abc123", getter.get(headers, "X-B3-TraceId"));
+        assertThat(getter.get(headers, "X-B3-TraceId")).isEqualTo("abc123");
     }
 
     @Test
@@ -44,6 +44,6 @@ class MessageHeaderPropagatorTest {
         Map<String, String> headers = new HashMap<>();
         MessageHeaderPropagatorGetter getter = new MessageHeaderPropagatorGetter();
 
-        assertNull(getter.get(headers, "missing"));
+        assertThat(getter.get(headers, "missing")).isNull();
     }
 }

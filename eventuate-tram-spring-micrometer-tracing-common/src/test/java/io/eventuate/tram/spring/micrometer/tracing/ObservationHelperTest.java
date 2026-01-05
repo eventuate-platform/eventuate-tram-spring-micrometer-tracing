@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class ObservationHelperTest {
@@ -36,7 +36,7 @@ class ObservationHelperTest {
 
         Observation observation = observationHelper.startProducerObservation("test-destination", headers);
 
-        assertNotNull(observation);
+        assertThat(observation).isNotNull();
         TestObservationRegistryAssert.assertThat(observationRegistry)
                 .hasObservationWithNameEqualTo("eventuate.tram.producer");
     }
@@ -47,8 +47,8 @@ class ObservationHelperTest {
 
         ObservationHelper.ConsumerObservationResult result = observationHelper.startConsumerObservation("test-destination", "test-subscriber", headers);
 
-        assertNotNull(result);
-        assertNotNull(result.getObservation());
+        assertThat(result).isNotNull();
+        assertThat(result.getObservation()).isNotNull();
         TestObservationRegistryAssert.assertThat(observationRegistry)
                 .hasObservationWithNameEqualTo("eventuate.tram.consumer");
     }
@@ -60,6 +60,6 @@ class ObservationHelperTest {
 
         Observation observation = noopHelper.startProducerObservation("test-destination", headers);
 
-        assertNotNull(observation);
+        assertThat(observation).isNotNull();
     }
 }

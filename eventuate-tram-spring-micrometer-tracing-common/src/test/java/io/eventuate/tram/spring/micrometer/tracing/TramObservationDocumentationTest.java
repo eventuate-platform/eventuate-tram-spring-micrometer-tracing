@@ -3,39 +3,39 @@ package io.eventuate.tram.spring.micrometer.tracing;
 import io.micrometer.observation.docs.ObservationDocumentation;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TramObservationDocumentationTest {
 
     @Test
     void shouldImplementObservationDocumentation() {
-        assertTrue(ObservationDocumentation.class.isAssignableFrom(TramObservationDocumentation.class));
+        assertThat(ObservationDocumentation.class.isAssignableFrom(TramObservationDocumentation.class)).isTrue();
     }
 
     @Test
     void shouldHaveProducerObservation() {
-        assertEquals("eventuate.tram.producer", TramObservationDocumentation.PRODUCER.getName());
+        assertThat(TramObservationDocumentation.PRODUCER.getName()).isEqualTo("eventuate.tram.producer");
     }
 
     @Test
     void shouldHaveConsumerObservation() {
-        assertEquals("eventuate.tram.consumer", TramObservationDocumentation.CONSUMER.getName());
+        assertThat(TramObservationDocumentation.CONSUMER.getName()).isEqualTo("eventuate.tram.consumer");
     }
 
     @Test
     void shouldHaveDeduplicationObservation() {
-        assertEquals("eventuate.tram.deduplication", TramObservationDocumentation.DEDUPLICATION.getName());
+        assertThat(TramObservationDocumentation.DEDUPLICATION.getName()).isEqualTo("eventuate.tram.deduplication");
     }
 
     @Test
     void producerShouldHaveLowCardinalityKeys() {
         var keys = TramObservationDocumentation.PRODUCER.getLowCardinalityKeyNames();
-        assertTrue(keys.length > 0);
+        assertThat(keys).hasSizeGreaterThan(0);
     }
 
     @Test
     void consumerShouldHaveLowCardinalityKeys() {
         var keys = TramObservationDocumentation.CONSUMER.getLowCardinalityKeyNames();
-        assertTrue(keys.length > 0);
+        assertThat(keys).hasSizeGreaterThan(0);
     }
 }

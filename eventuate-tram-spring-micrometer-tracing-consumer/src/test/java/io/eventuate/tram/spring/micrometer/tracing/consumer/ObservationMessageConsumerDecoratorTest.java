@@ -19,7 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 class ObservationMessageConsumerDecoratorTest {
@@ -89,7 +90,7 @@ class ObservationMessageConsumerDecoratorTest {
 
         decorator.accept(subscriberIdAndMessage, chain);
 
-        assertTrue(scopeWasOpen.get(), "Observation scope should be open during handler execution");
+        assertThat(scopeWasOpen.get()).as("Observation scope should be open during handler execution").isTrue();
     }
 
     @Test
@@ -102,7 +103,7 @@ class ObservationMessageConsumerDecoratorTest {
         RuntimeException expectedException = new RuntimeException("Handler failed");
         doThrow(expectedException).when(chain).invokeNext(subscriberIdAndMessage);
 
-        assertThrows(RuntimeException.class, () -> decorator.accept(subscriberIdAndMessage, chain));
+        assertThatThrownBy(() -> decorator.accept(subscriberIdAndMessage, chain)).isInstanceOf(RuntimeException.class);
 
         TestObservationRegistryAssert.assertThat(observationRegistry)
                 .hasObservationWithNameEqualTo(TramObservationDocumentation.CONSUMER.getName())
@@ -113,7 +114,7 @@ class ObservationMessageConsumerDecoratorTest {
 
     @Test
     void shouldReturnCorrectOrder() {
-        assertEquals(0, decorator.getOrder());
+        assertThat(decorator.getOrder()).isEqualTo(0);
     }
 
     private Message createTestMessage(String destination) {

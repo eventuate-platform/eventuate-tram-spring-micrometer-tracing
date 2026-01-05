@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ZipkinTraceDeserializerTest {
 
     @Test
     void shouldDeserializeEmptyTraces() {
         List<List<ZipkinSpan>> traces = ZipkinTraceDeserializer.deserializeTraces("[]");
-        assertTrue(traces.isEmpty());
+        assertThat(traces).isEmpty();
     }
 
     @Test
@@ -26,17 +26,17 @@ class ZipkinTraceDeserializerTest {
             """;
 
         List<List<ZipkinSpan>> traces = ZipkinTraceDeserializer.deserializeTraces(json);
-        assertEquals(1, traces.size());
+        assertThat(traces).hasSize(1);
 
         List<ZipkinSpan> trace = traces.get(0);
-        assertEquals(1, trace.size());
+        assertThat(trace).hasSize(1);
 
         ZipkinSpan span = trace.get(0);
-        assertEquals("abc123", span.getTraceId());
-        assertEquals("span1", span.getId());
-        assertEquals("test-span", span.getName());
-        assertTrue(span.hasTag("key", "value"));
-        assertTrue(span.hasName("test-span"));
+        assertThat(span.getTraceId()).isEqualTo("abc123");
+        assertThat(span.getId()).isEqualTo("span1");
+        assertThat(span.getName()).isEqualTo("test-span");
+        assertThat(span.hasTag("key", "value")).isTrue();
+        assertThat(span.hasName("test-span")).isTrue();
     }
 
     @Test
@@ -55,15 +55,15 @@ class ZipkinTraceDeserializerTest {
             """;
 
         List<List<ZipkinSpan>> traces = ZipkinTraceDeserializer.deserializeTraces(json);
-        assertEquals(1, traces.size());
+        assertThat(traces).hasSize(1);
 
         List<ZipkinSpan> trace = traces.get(0);
-        assertEquals(2, trace.size());
+        assertThat(trace).hasSize(2);
 
         ZipkinSpan parent = trace.stream().filter(s -> s.hasName("parent-span")).findFirst().orElseThrow();
         ZipkinSpan child = trace.stream().filter(s -> s.hasName("child-span")).findFirst().orElseThrow();
 
-        assertTrue(child.isChildOf(parent));
+        assertThat(child.isChildOf(parent)).isTrue();
     }
 
     @Test
@@ -79,7 +79,7 @@ class ZipkinTraceDeserializerTest {
             """;
 
         List<List<ZipkinSpan>> traces = ZipkinTraceDeserializer.deserializeTraces(json);
-        assertEquals(1, traces.size());
-        assertEquals("test-span", traces.get(0).get(0).getName());
+        assertThat(traces).hasSize(1);
+        assertThat(traces.get(0).get(0).getName()).isEqualTo("test-span");
     }
 }

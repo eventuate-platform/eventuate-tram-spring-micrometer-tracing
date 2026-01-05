@@ -29,7 +29,6 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = ProducerTracingIntegrationTest.TestConfiguration.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -91,8 +90,8 @@ public class ProducerTracingIntegrationTest {
         ResponseEntity<String> result = restTemplate.postForEntity(url,
                 new TestMessage("test content " + id), String.class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isNotNull();
 
         Eventually.eventually(() -> assertProducerSpanInZipkin());
     }
@@ -105,11 +104,11 @@ public class ProducerTracingIntegrationTest {
         ResponseEntity<String> result = restTemplate.postForEntity(url,
                 new TestMessage("test content " + id), String.class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // Wait for message to be consumed and verify trace headers
         Eventually.eventually(() -> {
-            assertFalse(testConsumer.getReceivedMessages().isEmpty(), "Should have received a message");
+            assertThat(testConsumer.getReceivedMessages()).as("Should have received a message").isNotEmpty();
 
             var message = testConsumer.getReceivedMessages().get(0);
             var headers = message.getHeaders();
@@ -130,7 +129,7 @@ public class ProducerTracingIntegrationTest {
         List<List<ZipkinSpan>> traces = verifier.getTraces();
         logger.debug("Found {} traces", traces.size());
 
-        assertFalse(traces.isEmpty(), "Expected at least one trace in Zipkin");
+        assertThat(traces).as("Expected at least one trace in Zipkin").isNotEmpty();
 
         List<ZipkinSpan> trace = traces.get(0);
         logger.debug("Trace has {} spans: {}", trace.size(), trace);
@@ -138,9 +137,9 @@ public class ProducerTracingIntegrationTest {
         String expectedSpanName = TramObservationDocumentation.PRODUCER.getName();
         ZipkinSpan producerSpan = verifier.findSpanByName(trace, expectedSpanName);
 
-        assertNotNull(producerSpan, "Producer span should exist");
-        assertEquals(expectedSpanName, producerSpan.getName());
-        assertTrue(producerSpan.hasTag("messaging.destination", TestController.TEST_CHANNEL),
-                "Producer span should have destination tag");
+        assertThat(producerSpan).as("Producer span should exist").isNotNull();
+        assertThat(producerSpan.getName()).isEqualTo(expectedSpanName);
+        assertThat(producerSpan.hasTag("messaging.destination", TestController.TEST_CHANNEL))
+                .as("Producer span should have destination tag").isTrue();
     }
 }

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class MessageHeaderMapAccessorTest {
 
@@ -16,7 +16,7 @@ class MessageHeaderMapAccessorTest {
 
         accessor.put("key1", "value1");
 
-        assertEquals("value1", headers.get("key1"));
+        assertThat(headers.get("key1")).isEqualTo("value1");
     }
 
     @Test
@@ -25,7 +25,7 @@ class MessageHeaderMapAccessorTest {
         headers.put("key1", "value1");
         MessageHeaderMapAccessor accessor = new MessageHeaderMapAccessor(headers);
 
-        assertEquals("value1", accessor.get("key1"));
+        assertThat(accessor.get("key1")).isEqualTo("value1");
     }
 
     @Test
@@ -33,7 +33,7 @@ class MessageHeaderMapAccessorTest {
         Map<String, String> headers = new HashMap<>();
         MessageHeaderMapAccessor accessor = new MessageHeaderMapAccessor(headers);
 
-        assertNull(accessor.get("missing"));
+        assertThat(accessor.get("missing")).isNull();
     }
 
     @Test
@@ -44,6 +44,6 @@ class MessageHeaderMapAccessorTest {
 
         accessor.remove("key1");
 
-        assertFalse(headers.containsKey("key1"));
+        assertThat(headers).doesNotContainKey("key1");
     }
 }

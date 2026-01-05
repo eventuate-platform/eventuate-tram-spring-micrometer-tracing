@@ -27,7 +27,6 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = OTelProducerTracingIntegrationTest.TestConfiguration.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -87,8 +86,8 @@ public class OTelProducerTracingIntegrationTest {
         ResponseEntity<String> result = restTemplate.postForEntity(url,
                 new TestMessage("test content " + id), String.class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertNotNull(result.getBody());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isNotNull();
 
         Eventually.eventually(() -> assertProducerSpanInJaeger());
     }
@@ -101,11 +100,11 @@ public class OTelProducerTracingIntegrationTest {
         ResponseEntity<String> result = restTemplate.postForEntity(url,
                 new TestMessage("test content " + id), String.class);
 
-        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // Wait for message to be consumed and verify trace headers
         Eventually.eventually(() -> {
-            assertFalse(testConsumer.getReceivedMessages().isEmpty(), "Should have received a message");
+            assertThat(testConsumer.getReceivedMessages()).as("Should have received a message").isNotEmpty();
 
             var message = testConsumer.getReceivedMessages().get(0);
             var headers = message.getHeaders();
@@ -126,7 +125,7 @@ public class OTelProducerTracingIntegrationTest {
         List<List<JaegerSpan>> traces = verifier.getTraces();
         logger.debug("Found {} traces", traces.size());
 
-        assertFalse(traces.isEmpty(), "Expected at least one trace in Jaeger");
+        assertThat(traces).as("Expected at least one trace in Jaeger").isNotEmpty();
 
         List<JaegerSpan> trace = traces.get(0);
         logger.debug("Trace has {} spans: {}", trace.size(), trace);
@@ -134,9 +133,9 @@ public class OTelProducerTracingIntegrationTest {
         String expectedSpanName = TramObservationDocumentation.PRODUCER.getName();
         JaegerSpan producerSpan = verifier.findSpanByName(trace, expectedSpanName);
 
-        assertNotNull(producerSpan, "Producer span should exist");
-        assertEquals(expectedSpanName, producerSpan.getOperationName());
-        assertTrue(producerSpan.hasTag("messaging.destination", TestController.TEST_CHANNEL),
-                "Producer span should have destination tag");
+        assertThat(producerSpan).as("Producer span should exist").isNotNull();
+        assertThat(producerSpan.getOperationName()).isEqualTo(expectedSpanName);
+        assertThat(producerSpan.hasTag("messaging.destination", TestController.TEST_CHANNEL))
+                .as("Producer span should have destination tag").isTrue();
     }
 }
