@@ -213,18 +213,19 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 
 **Goal:** Verify the implementation works with OpenTelemetry bridge and Jaeger backend.
 
-### [ ] Task 6.1: Create OpenTelemetry integration test configuration
-- [ ] Add `JaegerContainer` test utility using TestContainers
-- [ ] Add `JaegerSpanVerifier` utility to query Jaeger API
-- [ ] Create separate test source set or profile for OTel tests
+### [x] Task 6.1: Create OpenTelemetry integration test configuration
+- [x] Add `JaegerContainer` test utility using TestContainers
+- [x] Add `JaegerSpanVerifier` utility to query Jaeger API
+- [x] Create separate test module (`tests-otel`) for OTel tests
 
-### [ ] Task 6.2: Producer and consumer traces propagate with W3C headers
-- [ ] Create `OpenTelemetryTracingIntegrationTest`:
+### [x] Task 6.2: Producer and consumer traces propagate with W3C headers
+- [x] Create `OTelProducerTracingIntegrationTest`:
   - Use `micrometer-tracing-bridge-otel` instead of Brave
   - Use Jaeger container instead of Zipkin
   - Send message and verify trace in Jaeger
   - Verify W3C Trace Context headers (`traceparent`) in message
-- [ ] Ensure same production code works with both bridges
+- [x] Ensure same production code works with both bridges
+- Note: Created `tests-common` module for shared test utilities (TestController, TestConsumer, TestMessage)
 
 ---
 

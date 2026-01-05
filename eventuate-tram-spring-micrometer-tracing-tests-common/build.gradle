@@ -1,0 +1,15 @@
+dependencies {
+    implementation project(":eventuate-tram-spring-micrometer-tracing-producer")
+    implementation project(":eventuate-tram-spring-micrometer-tracing-consumer")
+
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-in-memory"
+    implementation "io.eventuate.tram.core:eventuate-tram-consumer-common"
+    implementation "io.eventuate.tram.core:eventuate-tram-messaging"
+    implementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+
+    implementation "com.fasterxml.jackson.core:jackson-databind"
+}

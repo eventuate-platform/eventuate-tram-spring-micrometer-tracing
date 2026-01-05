@@ -45,9 +45,10 @@ class ObservationHelperTest {
     void shouldStartConsumerObservation() {
         Map<String, String> headers = new HashMap<>();
 
-        Observation observation = observationHelper.startConsumerObservation("test-destination", "test-subscriber", headers);
+        ObservationHelper.ConsumerObservationResult result = observationHelper.startConsumerObservation("test-destination", "test-subscriber", headers);
 
-        assertNotNull(observation);
+        assertNotNull(result);
+        assertNotNull(result.getObservation());
         TestObservationRegistryAssert.assertThat(observationRegistry)
                 .hasObservationWithNameEqualTo("eventuate.tram.consumer");
     }

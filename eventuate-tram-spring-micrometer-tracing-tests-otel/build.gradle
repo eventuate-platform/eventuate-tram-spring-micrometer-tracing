@@ -3,13 +3,12 @@ dependencies {
     implementation project(":eventuate-tram-spring-micrometer-tracing-consumer")
     testImplementation project(":eventuate-tram-spring-micrometer-tracing-tests-common")
 
-    testImplementation "io.eventuate.tram.core:eventuate-tram-spring-in-memory"
+    // OpenTelemetry bridge
+    testImplementation "io.micrometer:micrometer-tracing-bridge-otel"
+    testImplementation "io.opentelemetry:opentelemetry-exporter-otlp"
+    testImplementation "io.opentelemetry:opentelemetry-sdk"
 
-    // Brave bridge for Zipkin tests
-    testImplementation "io.micrometer:micrometer-tracing-bridge-brave"
-    testImplementation "io.zipkin.brave:brave"
-    testImplementation "io.zipkin.reporter2:zipkin-reporter-brave"
-    testImplementation "io.zipkin.reporter2:zipkin-sender-urlconnection"
+    testImplementation "io.eventuate.tram.core:eventuate-tram-spring-in-memory"
 
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.springframework.boot:spring-boot-starter-web"
