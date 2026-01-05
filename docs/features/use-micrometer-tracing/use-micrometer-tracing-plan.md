@@ -98,12 +98,12 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
   - Handles trace context extraction from message headers
 - [x] Add null-safety for when `ObservationRegistry` is `NOOP`
 
-### [ ] Task 2.4: Create common module auto-configuration
-- [ ] Create `TramMicrometerTracingCommonAutoConfiguration` with:
+### [x] Task 2.4: Create common module auto-configuration
+- [x] Create `TramMicrometerTracingCommonAutoConfiguration` with:
   - `@ConditionalOnClass(ObservationRegistry.class)`
   - Bean for `ObservationHelper`
-- [ ] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
-- [ ] Configure module `build.gradle` with dependencies:
+- [x] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- [x] Configure module `build.gradle` with dependencies:
   - `micrometer-tracing` (compileOnly)
   - `micrometer-observation` (compileOnly)
   - `eventuate-tram-messaging` (compileOnly)
