@@ -1,9 +1,11 @@
 apply plugin: 'java-library'
 
 dependencies {
+    api project(":eventuate-tram-spring-micrometer-tracing-common")
+
     compileOnly "io.micrometer:micrometer-tracing"
     compileOnly "io.micrometer:micrometer-observation"
-    compileOnly "io.eventuate.tram.core:eventuate-tram-messaging"
+    compileOnly "io.eventuate.tram.core:eventuate-tram-consumer-common"
     compileOnly "org.springframework.boot:spring-boot-autoconfigure"
     compileOnly "org.slf4j:slf4j-api"
 
@@ -13,7 +15,10 @@ dependencies {
         exclude group: 'org.junit.platform'
         exclude group: 'org.junit.jupiter'
     }
+    testImplementation "io.micrometer:micrometer-tracing-test"
+    testImplementation "io.eventuate.tram.core:eventuate-tram-consumer-common"
     testImplementation "org.mockito:mockito-core"
     testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 }

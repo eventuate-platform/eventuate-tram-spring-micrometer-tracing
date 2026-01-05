@@ -93,6 +93,12 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
             public String asString() {
                 return "messaging.system";
             }
+        },
+        MESSAGING_SUBSCRIBER_ID {
+            @Override
+            public String asString() {
+                return "messaging.subscriber.id";
+            }
         }
     }
 
@@ -100,13 +106,7 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
         MESSAGING_MESSAGE_ID {
             @Override
             public String asString() {
-                return "messaging.message_id";
-            }
-        },
-        MESSAGING_SUBSCRIBER_ID {
-            @Override
-            public String asString() {
-                return "messaging.subscriber_id";
+                return "messaging.message.id";
             }
         }
     }
@@ -132,7 +132,8 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
                 return KeyValues.of(
                     KeyValue.of(LowCardinalityKeys.MESSAGING_SYSTEM, "eventuate-tram"),
                     KeyValue.of(LowCardinalityKeys.MESSAGING_OPERATION, "receive"),
-                    KeyValue.of(LowCardinalityKeys.MESSAGING_DESTINATION, consumerContext.getDestination())
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_DESTINATION, consumerContext.getDestination()),
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_SUBSCRIBER_ID, consumerContext.getSubscriberId())
                 );
             }
             return KeyValues.empty();
@@ -146,13 +147,10 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
                     return KeyValues.of(KeyValue.of(HighCardinalityKeys.MESSAGING_MESSAGE_ID, messageId));
                 }
             } else if (context instanceof TramConsumerObservationContext consumerContext) {
-                KeyValues keyValues = KeyValues.empty();
                 String messageId = consumerContext.getMessageId();
                 if (messageId != null) {
-                    keyValues = keyValues.and(KeyValue.of(HighCardinalityKeys.MESSAGING_MESSAGE_ID, messageId));
+                    return KeyValues.of(KeyValue.of(HighCardinalityKeys.MESSAGING_MESSAGE_ID, messageId));
                 }
-                keyValues = keyValues.and(KeyValue.of(HighCardinalityKeys.MESSAGING_SUBSCRIBER_ID, consumerContext.getSubscriberId()));
-                return keyValues;
             }
             return KeyValues.empty();
         }

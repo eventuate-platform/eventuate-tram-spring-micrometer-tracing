@@ -28,3 +28,5 @@ The specialized tools are faster, have correct permissions, and provide better o
 ## Git Commands
 
 Always run git commands from the project root directory. If you need to operate on the repository, cd to the root directory first rather than using `git -C`. This prevents accidentally committing files outside the project root.
+
+IMPORTANT - not not grep the output of gradlew. You must look in TEST*.xml files 

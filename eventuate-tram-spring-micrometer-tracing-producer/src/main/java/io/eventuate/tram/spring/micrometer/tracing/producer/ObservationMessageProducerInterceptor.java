@@ -24,6 +24,8 @@ public class ObservationMessageProducerInterceptor implements MessageInterceptor
         logger.info("Starting producer observation for destination: {}", destination);
         Observation observation = observationHelper.startProducerObservation(destination, message.getHeaders());
         Observation.Scope scope = observation.openScope();
+        // Inject trace context AFTER opening scope so the observation's span is current
+        observationHelper.injectTraceContext(message.getHeaders());
         currentObservationHolder.set(new ObservationHolder(observation, scope));
     }
 
