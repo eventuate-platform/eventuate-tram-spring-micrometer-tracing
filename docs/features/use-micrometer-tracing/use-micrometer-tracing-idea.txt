@@ -1,0 +1,49 @@
+# Eventuate Tram Spring Micrometer Tracing
+
+## Background
+
+The eventuate-tram-spring-cloud-sleuth project provides distributed tracing support for the Eventuate Framework. However, Spring Cloud Sleuth has been deprecated and replaced by Micrometer Tracing (https://micrometer.io/docs/tracing).
+
+## Goal
+
+Implement distributed tracing for the Eventuate Framework using Micrometer Tracing, providing feature parity with the existing eventuate-tram-spring-cloud-sleuth integration.
+
+## Classification
+
+Platform/infrastructure capability
+
+## Target Environment
+
+- Spring Boot 3.4.7
+- Eventuate Tram 0.37.0.BUILD-SNAPSHOT
+- Micrometer Tracing (supports both Brave and OpenTelemetry bridges)
+
+## Key Decisions
+
+1. **Tracer Support**: Support both Brave and OpenTelemetry tracer bridges via Micrometer's facade pattern
+2. **API Approach**: Use the Micrometer Observation API for instrumentation (provides metrics + tracing)
+3. **Instrumentation Scope**: Match existing Sleuth integration:
+   - Synchronous message producers
+   - Synchronous message consumers
+   - Reactive message producers
+   - Reactive message consumers
+   - SQL-based duplicate message detection
+4. **Module Structure**: Mirror the existing 9-module layout
+5. **Propagation**: Use Micrometer defaults (Brave=B3, OTel=W3C Trace Context)
+6. **Testing**: Test both bridges (Brave+Zipkin and OpenTelemetry+Jaeger)
+
+## Module Names
+
+- eventuate-tram-spring-micrometer-tracing-common
+- eventuate-tram-spring-micrometer-tracing-producer
+- eventuate-tram-spring-micrometer-tracing-consumer
+- eventuate-tram-spring-micrometer-tracing-reactive-common
+- eventuate-tram-spring-micrometer-tracing-reactive-producer
+- eventuate-tram-spring-micrometer-tracing-reactive-consumer
+- eventuate-tram-spring-micrometer-tracing-starter
+- eventuate-tram-spring-micrometer-tracing-tests
+- eventuate-tram-spring-micrometer-tracing-reactive-tests
+
+## Reference
+
+Project structure should follow eventuate-tram-spring-cloud-sleuth since this is an Eventuate Platform Project.
