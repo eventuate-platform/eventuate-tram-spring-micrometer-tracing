@@ -4,10 +4,12 @@ dependencies {
 
     testImplementation "io.micrometer:micrometer-tracing-bridge-brave"
     testImplementation "io.zipkin.reporter2:zipkin-reporter-brave"
+    testImplementation "io.zipkin.reporter2:zipkin-sender-urlconnection"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testImplementation "org.springframework.boot:spring-boot-starter-web"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.boot:spring-boot-starter-actuator"
+    testImplementation "org.springframework.boot:spring-boot-starter-aop"
 
     testImplementation "io.eventuate.tram.core:eventuate-tram-spring-in-memory"
     testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"

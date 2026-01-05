@@ -7,6 +7,7 @@ dependencies {
     compileOnly "io.micrometer:micrometer-observation"
     compileOnly "io.eventuate.tram.core:eventuate-tram-messaging"
     compileOnly "org.springframework.boot:spring-boot-autoconfigure"
+    compileOnly "org.slf4j:slf4j-api"
 
     testImplementation "io.micrometer:micrometer-tracing"
     testImplementation "io.micrometer:micrometer-observation"

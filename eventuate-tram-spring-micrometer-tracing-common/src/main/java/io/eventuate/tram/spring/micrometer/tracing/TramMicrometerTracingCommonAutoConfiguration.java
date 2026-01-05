@@ -8,7 +8,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 
-@AutoConfiguration
+@AutoConfiguration(afterName = {
+        "org.springframework.boot.actuate.autoconfigure.tracing.BraveAutoConfiguration",
+        "org.springframework.boot.actuate.autoconfigure.tracing.MicrometerTracingAutoConfiguration"
+})
 @ConditionalOnClass(ObservationRegistry.class)
 public class TramMicrometerTracingCommonAutoConfiguration {
 

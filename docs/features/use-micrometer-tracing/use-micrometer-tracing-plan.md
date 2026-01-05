@@ -139,15 +139,15 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 - [x] Create `ZipkinSpan` and `ZipkinTraceDeserializer` test utilities
 - [x] Create `ZipkinSpanVerifier` utility to query and assert spans from Zipkin API
 
-### [ ] Task 3.4: Producer observation creates span visible in Zipkin
-- [ ] Create `TestController` with `POST /send/{id}` endpoint that sends a message
-- [ ] Create `TestMessage` DTO
-- [ ] Create `ProducerTracingIntegrationTest`:
+### [x] Task 3.4: Producer observation creates span visible in Zipkin
+- [x] Create `TestController` with `POST /send/{id}` endpoint that sends a message
+- [x] Create `TestMessage` DTO
+- [x] Create `ProducerTracingIntegrationTest`:
   - Start Zipkin container
   - Send message via TestController
   - Query Zipkin API for traces
   - Assert producer span exists with correct name and tags
-- [ ] Verify test passes with Brave bridge
+- [x] Verify test passes with Brave bridge
 
 ---
 
