@@ -89,14 +89,14 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 - [x] Create `MessageHeaderPropagatorGetter` implementing Micrometer's propagation getter
 - Note: Skipped interface extraction - single implementation doesn't warrant abstraction
 
-### [ ] Task 2.3: Implement ObservationHelper utility class
-- [ ] Create `ObservationHelper` that:
+### [x] Task 2.3: Implement ObservationHelper utility class
+- [x] Create `ObservationHelper` that:
   - Holds `ObservationRegistry` reference
   - Provides `startProducerObservation()` method
   - Provides `startConsumerObservation()` method
   - Handles trace context injection into message headers
   - Handles trace context extraction from message headers
-- [ ] Add null-safety for when `ObservationRegistry` is `NOOP`
+- [x] Add null-safety for when `ObservationRegistry` is `NOOP`
 
 ### [ ] Task 2.4: Create common module auto-configuration
 - [ ] Create `TramMicrometerTracingCommonAutoConfiguration` with:

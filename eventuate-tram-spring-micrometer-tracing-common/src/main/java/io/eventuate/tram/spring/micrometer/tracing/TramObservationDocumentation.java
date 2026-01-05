@@ -16,6 +16,11 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
         }
 
         @Override
+        public Class<? extends ObservationConvention<? extends Observation.Context>> getDefaultConvention() {
+            return DefaultConvention.class;
+        }
+
+        @Override
         public KeyName[] getLowCardinalityKeyNames() {
             return LowCardinalityKeys.values();
         }
@@ -33,6 +38,11 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
         }
 
         @Override
+        public Class<? extends ObservationConvention<? extends Observation.Context>> getDefaultConvention() {
+            return DefaultConvention.class;
+        }
+
+        @Override
         public KeyName[] getLowCardinalityKeyNames() {
             return LowCardinalityKeys.values();
         }
@@ -47,6 +57,11 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
         @Override
         public String getName() {
             return "eventuate.tram.deduplication";
+        }
+
+        @Override
+        public Class<? extends ObservationConvention<? extends Observation.Context>> getDefaultConvention() {
+            return DefaultConvention.class;
         }
 
         @Override
@@ -93,6 +108,53 @@ public enum TramObservationDocumentation implements ObservationDocumentation {
             public String asString() {
                 return "messaging.subscriber_id";
             }
+        }
+    }
+
+    public enum DefaultConvention implements ObservationConvention<Observation.Context> {
+        INSTANCE;
+
+        @Override
+        public boolean supportsContext(Observation.Context context) {
+            return context instanceof TramProducerObservationContext ||
+                   context instanceof TramConsumerObservationContext;
+        }
+
+        @Override
+        public KeyValues getLowCardinalityKeyValues(Observation.Context context) {
+            if (context instanceof TramProducerObservationContext producerContext) {
+                return KeyValues.of(
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_SYSTEM, "eventuate-tram"),
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_OPERATION, "publish"),
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_DESTINATION, producerContext.getDestination())
+                );
+            } else if (context instanceof TramConsumerObservationContext consumerContext) {
+                return KeyValues.of(
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_SYSTEM, "eventuate-tram"),
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_OPERATION, "receive"),
+                    KeyValue.of(LowCardinalityKeys.MESSAGING_DESTINATION, consumerContext.getDestination())
+                );
+            }
+            return KeyValues.empty();
+        }
+
+        @Override
+        public KeyValues getHighCardinalityKeyValues(Observation.Context context) {
+            if (context instanceof TramProducerObservationContext producerContext) {
+                String messageId = producerContext.getMessageId();
+                if (messageId != null) {
+                    return KeyValues.of(KeyValue.of(HighCardinalityKeys.MESSAGING_MESSAGE_ID, messageId));
+                }
+            } else if (context instanceof TramConsumerObservationContext consumerContext) {
+                KeyValues keyValues = KeyValues.empty();
+                String messageId = consumerContext.getMessageId();
+                if (messageId != null) {
+                    keyValues = keyValues.and(KeyValue.of(HighCardinalityKeys.MESSAGING_MESSAGE_ID, messageId));
+                }
+                keyValues = keyValues.and(KeyValue.of(HighCardinalityKeys.MESSAGING_SUBSCRIBER_ID, consumerContext.getSubscriberId()));
+                return keyValues;
+            }
+            return KeyValues.empty();
         }
     }
 }
