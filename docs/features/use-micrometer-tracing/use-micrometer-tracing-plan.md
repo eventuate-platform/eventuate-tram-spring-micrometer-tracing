@@ -71,17 +71,17 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 
 **Goal:** Implement the common module with Micrometer Observation conventions and utilities that will be shared by producer and consumer modules.
 
-### [ ] Task 2.1: Implement TramObservationConvention for messaging observations
-- [ ] Define `TramProducerObservationContext` extending `Observation.Context` with:
+### [x] Task 2.1: Implement TramObservationConvention for messaging observations
+- [x] Define `TramProducerObservationContext` extending `Observation.Context` with:
   - `destination` (low cardinality)
   - `messageId` (high cardinality)
   - `messageHeaders` (high cardinality)
-- [ ] Define `TramConsumerObservationContext` extending `Observation.Context` with:
+- [x] Define `TramConsumerObservationContext` extending `Observation.Context` with:
   - `destination` (low cardinality)
   - `subscriberId` (low cardinality)
   - `messageId` (high cardinality)
   - `messageHeaders` (high cardinality)
-- [ ] Implement `TramObservationDocumentation` enum documenting observation names and keys
+- [x] Implement `TramObservationDocumentation` enum documenting observation names and keys
 
 ### [ ] Task 2.2: Implement MessageHeaderAccessor abstraction
 - [ ] Create `MessageHeaderAccessor` interface with `put()`, `get()`, `remove()` methods

@@ -1,0 +1,10 @@
+apply plugin: 'java-library'
+
+dependencies {
+    compileOnly "io.micrometer:micrometer-tracing"
+    compileOnly "io.micrometer:micrometer-observation"
+    compileOnly "io.eventuate.tram.core:eventuate-tram-messaging"
+
+    testImplementation "io.micrometer:micrometer-tracing"
+    testImplementation "io.micrometer:micrometer-observation"
+}
