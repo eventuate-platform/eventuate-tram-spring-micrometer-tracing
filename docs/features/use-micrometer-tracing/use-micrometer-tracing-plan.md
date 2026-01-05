@@ -83,11 +83,11 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
   - `messageHeaders` (high cardinality)
 - [x] Implement `TramObservationDocumentation` enum documenting observation names and keys
 
-### [ ] Task 2.2: Implement MessageHeaderAccessor abstraction
-- [ ] Create `MessageHeaderAccessor` interface with `put()`, `get()`, `remove()` methods
-- [ ] Create `MessageHeaderMapAccessor` implementation for `Map<String, String>` headers
-- [ ] Create `MessageHeaderPropagatorSetter` implementing Micrometer's propagation setter
-- [ ] Create `MessageHeaderPropagatorGetter` implementing Micrometer's propagation getter
+### [x] Task 2.2: Implement MessageHeaderAccessor abstraction
+- [x] Create `MessageHeaderMapAccessor` implementation for `Map<String, String>` headers
+- [x] Create `MessageHeaderPropagatorSetter` implementing Micrometer's propagation setter
+- [x] Create `MessageHeaderPropagatorGetter` implementing Micrometer's propagation getter
+- Note: Skipped interface extraction - single implementation doesn't warrant abstraction
 
 ### [ ] Task 2.3: Implement ObservationHelper utility class
 - [ ] Create `ObservationHelper` that:
