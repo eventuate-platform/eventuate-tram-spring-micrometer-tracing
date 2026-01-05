@@ -1,0 +1,14 @@
+rootProject.name="eventuate-tram-spring-micrometer-tracing"
+
+include 'eventuate-tram-spring-micrometer-tracing-common'
+include 'eventuate-tram-spring-micrometer-tracing-producer'
+include 'eventuate-tram-spring-micrometer-tracing-consumer'
+include 'eventuate-tram-spring-micrometer-tracing-starter'
+include 'eventuate-tram-spring-micrometer-tracing-tests'
+include 'eventuate-tram-spring-micrometer-tracing-reactive-tests'
+
+include 'eventuate-tram-spring-micrometer-tracing-reactive-common'
+include 'eventuate-tram-spring-micrometer-tracing-reactive-consumer'
+include 'eventuate-tram-spring-micrometer-tracing-reactive-producer'
+
+include 'eventuate-tram-spring-micrometer-tracing-bom'
