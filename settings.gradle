@@ -5,7 +5,7 @@ include 'eventuate-tram-spring-micrometer-tracing-producer'
 include 'eventuate-tram-spring-micrometer-tracing-consumer'
 include 'eventuate-tram-spring-micrometer-tracing-starter'
 include 'eventuate-tram-spring-micrometer-tracing-tests-common'
-include 'eventuate-tram-spring-micrometer-tracing-tests'
+include 'eventuate-tram-spring-micrometer-tracing-tests-brave'
 include 'eventuate-tram-spring-micrometer-tracing-tests-otel'
 include 'eventuate-tram-spring-micrometer-tracing-reactive-tests'
 
