@@ -1,0 +1,19 @@
+dependencies {
+    implementation project(":eventuate-tram-spring-micrometer-tracing-producer")
+    // Consumer will be added when Steel Thread 4 is implemented
+
+    testImplementation "io.micrometer:micrometer-tracing-bridge-brave"
+    testImplementation "io.zipkin.reporter2:zipkin-reporter-brave"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testImplementation "org.springframework.boot:spring-boot-starter-web"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-actuator"
+
+    testImplementation "io.eventuate.tram.core:eventuate-tram-spring-in-memory"
+    testImplementation "io.eventuate.util:eventuate-util-test:$eventuateUtilVersion"
+
+    testImplementation "org.testcontainers:testcontainers:$testContainersVersion"
+    testImplementation "org.testcontainers:junit-jupiter:$testContainersVersion"
+
+    testImplementation "com.fasterxml.jackson.core:jackson-databind"
+}

@@ -129,15 +129,15 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 - [x] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
 - [x] Configure module `build.gradle` with dependencies on common module
 
-### [ ] Task 3.3: Create integration test infrastructure for sync tests
-- [ ] Configure `eventuate-tram-spring-micrometer-tracing-tests/build.gradle` with:
+### [x] Task 3.3: Create integration test infrastructure for sync tests
+- [x] Configure `eventuate-tram-spring-micrometer-tracing-tests/build.gradle` with:
   - TestContainers dependency
   - `micrometer-tracing-bridge-brave`
   - `zipkin-reporter-brave`
   - `eventuate-tram-spring-in-memory`
   - JUnit 5
-- [ ] Create `ZipkinContainer` test utility using TestContainers
-- [ ] Create `ZipkinSpanVerifier` utility to query and assert spans from Zipkin API
+- [x] Create `ZipkinSpan` and `ZipkinTraceDeserializer` test utilities
+- [x] Create `ZipkinSpanVerifier` utility to query and assert spans from Zipkin API
 
 ### [ ] Task 3.4: Producer observation creates span visible in Zipkin
 - [ ] Create `TestController` with `POST /send/{id}` endpoint that sends a message
