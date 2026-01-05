@@ -121,13 +121,13 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 - [x] Use `ObservationHelper` for observation lifecycle
 - [x] Ensure span name follows convention: `eventuate.tram.producer`
 
-### [ ] Task 3.2: Create producer module auto-configuration
-- [ ] Create `TramMicrometerTracingProducerAutoConfiguration` with:
-  - `@ConditionalOnClass(MessageProducerImplementation.class)`
-  - `@ConditionalOnBean(ObservationRegistry.class)`
+### [x] Task 3.2: Create producer module auto-configuration
+- [x] Create `TramMicrometerTracingProducerAutoConfiguration` with:
+  - `@ConditionalOnClass(ObservationRegistry.class)`
+  - `@ConditionalOnBean(ObservationHelper.class)`
   - Bean for `ObservationMessageProducerInterceptor`
-- [ ] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
-- [ ] Configure module `build.gradle` with dependencies on common module
+- [x] Create `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- [x] Configure module `build.gradle` with dependencies on common module
 
 ### [ ] Task 3.3: Create integration test infrastructure for sync tests
 - [ ] Configure `eventuate-tram-spring-micrometer-tracing-tests/build.gradle` with:
