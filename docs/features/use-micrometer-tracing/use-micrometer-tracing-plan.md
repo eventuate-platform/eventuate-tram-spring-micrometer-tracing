@@ -114,12 +114,12 @@ This implementation mirrors the structure of `eventuate-tram-spring-cloud-sleuth
 
 **Goal:** Implement producer tracing that creates observations when messages are sent, verified with Brave bridge and Zipkin.
 
-### [ ] Task 3.1: Implement ObservationMessageProducerInterceptor
-- [ ] Create `ObservationMessageProducerInterceptor` implementing `MessageInterceptor`:
+### [x] Task 3.1: Implement ObservationMessageProducerInterceptor
+- [x] Create `ObservationMessageProducerInterceptor` implementing `MessageInterceptor`:
   - `preSend()`: Start observation with destination, inject trace context into headers
   - `postSend()`: Add messageId to context, stop observation (handle errors)
-- [ ] Use `ObservationHelper` for observation lifecycle
-- [ ] Ensure span name follows convention: `eventuate.tram.producer`
+- [x] Use `ObservationHelper` for observation lifecycle
+- [x] Ensure span name follows convention: `eventuate.tram.producer`
 
 ### [ ] Task 3.2: Create producer module auto-configuration
 - [ ] Create `TramMicrometerTracingProducerAutoConfiguration` with:
