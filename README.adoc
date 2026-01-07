@@ -1,0 +1,109 @@
+= An Eventuate project
+
+image::https://eventuate.io/i/logo.gif[]
+
+This project is part of http://eventuate.io[Eventuate], which is a microservices collaboration platform.
+
+= Eventuate Tram Spring Micrometer Tracing
+
+image::https://img.shields.io/maven-central/v/io.eventuate.tram.springmicrometertracing/eventuate-tram-spring-micrometer-tracing-bom[link="https://search.maven.org/artifact/io.eventuate.tram.springmicrometertracing/eventuate-tram-spring-micrometer-tracing-bom"]
+
+This project provides distributed tracing support for https://github.com/eventuate-tram/eventuate-tram-core[Eventuate Tram] using https://micrometer.io/docs/tracing[Micrometer Tracing].
+It automatically propagates trace context through Eventuate Tram messages, enabling end-to-end distributed tracing across microservices.
+
+== Key features
+
+* Automatic trace context propagation for Eventuate Tram messages
+* Producer-side tracing - creates spans when sending messages
+* Consumer-side tracing - extracts and continues traces when receiving messages
+* Spring Boot auto-configuration
+* Support for multiple tracing backends via Micrometer Tracing:
+** https://zipkin.io/[Zipkin] (via Brave)
+** https://www.jaegertracing.io/[Jaeger] (via OpenTelemetry)
+
+== How it works
+
+When a message is sent using Eventuate Tram:
+
+1. The producer interceptor creates a new span and injects trace context into message headers
+2. The message is sent through the normal Eventuate Tram messaging infrastructure
+3. On the consumer side, the decorator extracts the trace context from message headers
+4. A new child span is created, continuing the distributed trace
+
+This enables you to see the complete message flow across services in your distributed tracing system.
+
+== Getting started
+
+=== Add the dependency
+
+Add the BOM and starter dependency to your Spring Boot application:
+
+.Gradle
+[source,groovy]
+----
+dependencies {
+    implementation platform("io.eventuate.tram.springmicrometertracing:eventuate-tram-spring-micrometer-tracing-bom:$eventuateTramMicrometerTracingVersion")
+
+    implementation "io.eventuate.tram.springmicrometertracing:eventuate-tram-spring-micrometer-tracing-starter"
+}
+----
+
+.Maven
+[source,xml]
+----
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.eventuate.tram.springmicrometertracing</groupId>
+            <artifactId>eventuate-tram-spring-micrometer-tracing-bom</artifactId>
+            <version>${eventuateTramMicrometerTracingVersion}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>io.eventuate.tram.springmicrometertracing</groupId>
+        <artifactId>eventuate-tram-spring-micrometer-tracing-starter</artifactId>
+    </dependency>
+</dependencies>
+----
+
+=== Configure your tracing backend
+
+You also need to configure Micrometer Tracing with your preferred backend.
+See the https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.micrometer-tracing[Spring Boot Micrometer Tracing documentation] for details.
+
+==== Example: Zipkin with Brave
+
+[source,groovy]
+----
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+}
+----
+
+==== Example: Jaeger with OpenTelemetry
+
+[source,groovy]
+----
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+}
+----
+
+== Got questions?
+
+Don't hesitate to create an issue or http://eventuate.io/contact.html[Contact us].
+
+== Contributing
+
+Contributions are welcome.
+
+Please sign a https://chrisrichardson.net/legal/[contributor license agreement].
